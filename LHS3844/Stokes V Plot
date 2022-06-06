@@ -1,0 +1,79 @@
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
+from matplotlib import rc
+from pylab import *
+
+# XY file
+file_name_XY = 'PlotMSExports/ImagReal_vs_time_XY_4thSplit.txt'
+x,y = np.loadtxt(file_name_XY,unpack=True,usecols=(0,1))
+XY = y
+
+
+# YX file
+file_name_YX = 'PlotMSExports/ImagReal_vs_time_YX_4thSplit.txt'
+x,y = np.loadtxt(file_name_YX,unpack=True,usecols=(0,1))
+YX = y
+
+comparison = XY != YX
+equal_arrays = comparison.all()
+print(equal_arrays)
+
+# Stokes V Plot
+V = (XY-YX)/2
+V_uJy = V*(10**6)
+
+print(V)
+
+sigma = np.std(V_uJy)
+#print('Standard deviation: ' + str(sigma) + 'Jy' + ' or ' + str(sigma*(10e5)) + 'uJy')
+#print('Three times sigma: ' + str(3*sigma) + 'Jy' + ' or ' + str((3*sigma)*(10e5)) + 'uJy')
+
+time = x - 5067838999.929
+font = 14
+
+#rint np.where(time == 197844.75)
+
+fig= plt.figure(figsize=(10,6), dpi=300)
+
+Zero = plt.plot(time, 0*np.ones(len(time)),'-k', linewidth=1.0)
+
+error_array_correct_version_upper=(3*sigma)*np.ones(len(time))
+error_array_correct_version_lower=(-3*sigma)*np.ones(len(time))
+
+error_upper = plt.plot(time,error_array_correct_version_upper,'-r',label='3-sigma threshold')
+error_lower = plt.plot(time,error_array_correct_version_lower,'-r')
+
+StokesQIntensity = plt.plot(time,V_uJy,'-b',label='Stokes V',linewidth=1.0)
+plt.title('Radio Intensity for LHS3844 In Stokes V', fontsize = 14)
+plt.xlabel('Time (sec)', fontsize = font)
+plt.ylabel('Intensity (uJy)', fontsize = font)
+plt.xticks(fontsize=font)
+plt.yticks(fontsize=font)
+plt.xlim()
+
+#print plt.ylim()
+#y_min = float(raw_input('What is the lower y-limit?'))
+#y_max = float(raw_input('What is the upper y-limit?'))
+
+#query = raw_input('Plot an error line? ')
+
+#error_array = []
+#error_array = list()
+
+#if(query == 'yes'):
+  #sigma = 3*(float(raw_input('Enter the sigma error value:')))
+  #while len(str(sigma)) < len(time):
+    #error_array.append(str(sigma))
+    #if len(error_array) == len(time):
+     #break
+  #plt.plot(time,error_array,label='Error Line')
+  #plt.legend()
+  #plt.show()
+  #print 'Plot completed'
+#else:
+
+plt.legend(loc='lower left', fontsize=10)
+plt.show()
+plt.savefig('lhs3844timeseriesStokesV.pdf')
