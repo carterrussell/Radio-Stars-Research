@@ -1,0 +1,56 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
+
+# RR file
+file_name_RR = 'PlotMSExports/Realcorrected_vs_time_RR'
+x,y = np.loadtxt(file_name_RR,unpack=True,usecols=(0,1))
+RR = y
+
+
+# LL file
+file_name_LL = 'PlotMSExports/Realcorrected_vs_time_LL'
+x,y = np.loadtxt(file_name_LL,unpack=True,usecols=(0,1))
+LL = y
+
+comparison = RR != LL
+equal_arrays = comparison.all()
+print(equal_arrays)
+
+# Stokes I Plot
+I = ((RR + LL) / 2)
+I_uJy = I*(10**6)
+
+sigma = np.std(I_uJy)
+#print 'Standard deviation: ' + str(sigma) + 'Jy' + ' or ' + str(sigma*(10e5)) + 'uJy'
+#print 'Three times sigma: ' + str(3*sigma) + 'Jy' + ' or ' + str((3*sigma)*(10e5)) + 'uJy'
+
+time = (x - 5085265944)
+font = 14
+
+fig= plt.figure(figsize=(10,6), dpi=300)
+
+#Zero Line
+plt.xticks(fontsize=font)
+plt.yticks(fontsize=font)
+#plt.ticklabel_format(axis='y',style='sci',scilimits=(-2,2))
+Zero = plt.plot(time, 0*np.ones(len(time)),'-k', linewidth=1.0)
+
+error_array_correct_version_upper=(3*sigma)*np.ones(len(time))
+
+error_upper = plt.plot(time,error_array_correct_version_upper,'-r',label='3-sigma threshold', linewidth=1.0)
+
+
+StokesIIntensity = plt.plot(time,I_uJy,'-b',label='Stokes I',linewidth=1.0)
+plt.title('Radio Intensity for LTT3780 in Stokes I', fontsize=14)
+#plt.ticklabel_format(axis='y',style='sci',scilimits=(-6,6))
+plt.xlabel('Time (sec)', fontsize=font)
+plt.ylabel('Intensity (uJy)', fontsize=font)
+plt.xlim(0,201648.750)
+plt.ylim(-110,110)
+plt.legend(loc='lower left',fontsize=10)
+fig.patch.set_facecolor('white')
+#plt.xticks(fontsize=26)
+#plt.yticks(fontsize=26)
+plt.show()
+plt.savefig('ltt3780timeseriesStokesI.pdf')
