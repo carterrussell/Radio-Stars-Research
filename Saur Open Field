@@ -1,0 +1,70 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+
+from matplotlib.pyplot import figure as fig
+
+
+# Variable List                                              Description                                                      Units
+alpha = 1                                           # Dimensionless interaction strength                                    [unitless]
+Rplanet = 8.61*(10**8)                              # The planetary radius                                                  [centimeters]
+Rstar =2.6568*(10**10)                              # The stellar radius                                                    [centimeters]
+v = 1.69*(10**7)                                    # Velocity of the planet through the stellar magnetosphere              [cm/s]
+theta = 90                                          # Angle between planetary mag. field and the rel. velocity vector       [degrees]
+roh = 7.3*(10**-20)                                 # The plasma density between the star and the planet                    [g/(cm**3)]
+eta = 0.01                                          # The efficiency value for the conversion of energy into radio waves    [unitless]
+omega = 0.16                                        # The solid angle                                                       [steradians]
+d = 6.79*(10**19)                                   # The distance between the star system and Earth                        [cm]
+delta_nu = 3*(10**9)                                # The observation bandwidth                                             [Hz]
+a = 1.799*(10**11)                                  # Semi-major axis of the planet                                         [cm]
+
+x = np.arange(1, 1001, 1)
+y = np.arange(0.01, 10.01, 0.01)
+X, Y = np.meshgrid(x, y)
+
+def S_mag(Bdstar, Bdplanet):                                                                                                 #Flux density for a magnetosphere
+    S1 = (eta*(Rplanet**2)*(v**2)*((4*math.pi*roh)**(1/2)))/(2*omega*(d**2)*delta_nu)                                        #Flux density when Bdstar = Bdplanet = 1 Gauss, in erg/s*hz*cm^2
+    #print(S1)                                                                                                               #4.58x10^-28
+    return (S1*((Bdstar*(Bdplanet**2))**(1/3)))*(10**29)                                                                     #10^29 is the conversion to microJanskies.
+
+def S_ion(Bdstar):                                                                                                           #Flux density for an ionosphere
+    S1 = (eta*(Rplanet**2)*(v**2)*(Rstar**2)*((4*math.pi*roh)**(1/2)))/(2*omega*(d**2)*delta_nu*(a**2))                      #Flux density when Bdstar = 1 Gauss, in erg/s*hz*cm^2
+    #print(S1)                                                                                                               #9.99x10^-30
+    return (S1*Bdstar)*(10**29)                                                                                              #10^29 is the conversion to microJanskies.
+
+magline = 0.0032*x
+maglineplot = plt.plot(x, magline)
+
+# print(len(magline))
+# print(len(y))
+# print(any(y>magline))
+
+Z = (Y>magline) * (S_mag(X, Y)) + (Y<=magline) * (S_ion(X))
+
+heatmap = plt.contourf(x, y, Z, 64, cmap='plasma')
+
+thresholdline = plt.contour(x, y, Z, levels=[91.4], colors='white')
+
+#plt.clabel(heatmap, inline=False, fmt='%1.1f', fontsize=10)                                                                  #This makes the colorbar
+
+colorbar = plt.colorbar(heatmap)                                                                                              #This makes the color correspond with our chosen cmap value.
+
+colorbar.set_label('Theoretical Flux Density (\u03BCJy)', fontsize=28)                                                        #Makes the label for the colorbar
+
+plt.title('LTT3780 Theoretical Flux Density - Saur Open Field', fontsize=30)
+
+plt.ylabel('Planetary Magnetic Dipole Field Strength (G)', fontsize=26)
+
+plt.xlabel('Stellar Magnetic Dipole Field Strength (G)', fontsize=28)
+
+plt.ylim(0, 10.01)
+
+plt.xticks(fontsize=26)
+
+plt.yticks(fontsize=26)
+
+plt.savefig("LTT3780HeatmapSaurOF", dpi = 300, bbox_inches='tight',pad_inches = 0)
+
+colorbar.ax.tick_params(labelsize=26)
+
+plt.show()
