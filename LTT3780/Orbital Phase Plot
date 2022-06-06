@@ -1,0 +1,27 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+plot_title="Orbital Phase of LTT3780b"
+
+
+file_name='PlotMSExports/Realcorrected_vs_time_RR'
+label_name='Orbital Phase'
+x,y = np.loadtxt(file_name, unpack=True, usecols=(0,1))
+time = (x - min(x))/86400  #Conversion to days from seconds
+orbital_period = 0.768377          #Units in days
+fractional_period=(time/orbital_period)
+wrapped_fractional_period = fractional_period % 1.0
+
+
+
+plt.plot(time, wrapped_fractional_period,'.',label=label_name)
+plt.xlim(0,2.3)
+plt.ylim(0,1)
+plt.title(plot_title,fontsize=30)
+plt.xlabel('Time (days)',fontsize=28)
+plt.ylabel('Orbital Phase', fontsize=28)
+plt.xticks(fontsize=25)
+plt.yticks(fontsize=25)
+plt.legend(fontsize=26)
+plt.savefig('ltt3780borbitalphase',dpi=300)
+plt.show()
